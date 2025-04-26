@@ -1,0 +1,57 @@
+services:
+  postgres:
+    container_name: postgres-db  # Name the container
+    image: postgres  # Use the official Postgres image
+    environment:
+      POSTGRES_USER: postroot  # Define the PostgreSQL user
+      POSTGRES_PASSWORD: postroot  # Define the PostgreSQL password
+      PGDATA: /data/postgres
+      #POSTGRES_DB: mydatabase  # Define the PostgreSQL database name
+    volumes:
+      - postgres:/data/postgres  # Persist database data
+    networks:
+      - app-network   # Connect to the app network
+    ports:
+      - "5432:5432"  # Expose PostgreSQL on port 5432
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin_container  # Name the container
+    image: dpage/pgadmin4  # Use the official pgAdmin image
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pdadmin.org  # Set the default admin email
+      PGADMIN_DEFAULT_PASSWORD: -admin  # Set the default admin password
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - app-network  # Connect to the app network
+    ports:
+      - "5050:80"  # Expose pgAdmin's web interface on port 80
+    depends_on:
+      - postgres  # Ensure PostgreSQL starts before pgAdmin
+    restart: unless-stopped
+
+#  jobms:
+#    container_name: jobms
+#    image: hrishav98/jobmsimage  # Replace with your actual image
+#    ports:
+#      - "8082:8082"  # Expose your jobms app on port 8082
+#    networks:
+#      - app-network
+#    restart: unless-stopped
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge  # Use the default bridge network for communication between containers
+
+volumes: # Define a volume to persist Postgres data
+  postgres:
+  pgadmin:
